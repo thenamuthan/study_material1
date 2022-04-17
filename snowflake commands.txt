@@ -1,0 +1,271 @@
+----Bulk loading---
+create or replace database Demodatabase;
+use schema public;
+
+create table person (
+  sno int,
+  age int,
+  employee string,
+  zipcode bigint,
+  edu string,
+  marrige string,
+  profession string,
+  spouse string,
+  race string,
+  gender string,
+  spouse_age int, 
+  location string,
+  salary string);
+  
+select * from person;
+select count (0) from person;
+Drop table person;
+
+
+----bulk loading stages---
+
+create or replace database Demodatabase;
+use schema public;
+show tables;
+
+select * from person;
+
+truncate table person;
+show stages;
+
+create or replace stage mystage url='s3://python121/';
+
+copy into person from @mystage file_format=CSVFORMAT;
+
+### ANother method####
+
+copy into person from s3://python121;
+
+select t.$1,$2,$2 from @mystage t;
+
+
+-----bulk loading3----
+show tables;
+
+create or replace external table person_ext
+location=@mystage
+file_format=csvformat;
+
+select 
+value:c1::int as Sno,
+value:c2::int as Age,
+value:c3::string as employment from person_ext;
+
+### copying data from one table to another
+
+create or replace table person2 (
+  sno int,
+  age int,
+  emp_nae string);
+  
+  copy into person2(sno, emp_nae, age)
+  from (select t.$1, t.$3, t.$2 from @mystage t)
+  file_format=csvformat;
+  
+------snowpipes----
+ 
+-- Create new database
+CREATE DATABASE snowpipedemo;
+
+USE DATABASE snowpipedemo;
+
+
+-- create an external stage using an S3 bucket
+create or replace stage mystage url='s3://python121/';
+
+-- command to list files in stage
+LIST @mystage;
+
+CREATE or replace TABLE person (
+  sno int, 
+  age int, 
+  employment string, 
+  zipcode bigint, 
+  education string, 
+  martialstatus string, 
+  profession string, 
+  Spouse string, 
+  race string, 
+  gender string, 
+  spouse_Age bigint, 
+  location string, 
+  salary string);
+  
+  
+  truncate table person;
+  -- create snowpipe definiton
+
+CREATE OR REPLACE PIPE my_first_pipe 
+auto_ingest = true
+AS COPY INTO person FROM @mystage
+file_format = (type = csv field_delimiter = ',' skip_header = 1);
+
+
+select * from person;
+
+select count(1) from person;
+
+
+show pipes;
+
+----clustering resize---
+use SNOWFLAKE_SAMPLE_DATA;
+
+use schema tpcds_sf100tcl;
+show tables;
+select i_item_id,sum(sr_return_quantity) from
+"ITEM" a,
+"STORE_RETURNS" b
+where 
+a.i_item_sk = b.sr_item_sk
+and sr_store_sk=1634
+group by i_item_id;
+
+select i_item_id,sum(sr_return_quantity) from
+"SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."ITEM" a,
+"SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."STORE_RETURNS" b
+where 
+a.i_item_sk = b.sr_item_sk
+and sr_returned_date_sk=2450930
+group by i_item_id;
+
+
+---clustering size with table----
+use demodatabase;
+
+show tables;
+
+create table storeReturn as select * from "SNOWFLAKE_SAMPLE_DATA". "TPCDS_SF10TCL"."STORE_RETURNS";
+select i_item_id,sum(sr_return_quantity) from
+"SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."ITEM" a,
+"SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."STORE_RETURNS" b
+where 
+a.i_item_sk = b.sr_item_sk
+and sr_returned_date_sk=2450930
+group by i_item_id;
+
+select i_item_id,sum(sr_return_quantity) from
+"SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."ITEM" a,
+"SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."STORE_RETURNS" b
+where 
+a.i_item_sk = b.sr_item_sk
+and sr_store_sk=1606
+group by i_item_id;
+
+
+select distinct  sr_store_sk from "SNOWFLAKE_SAMPLE_DATA"."TPCDS_SF100TCL"."STORE_RETURNS" limit 10;
+
+----data cloning---
+
+SELECT * FROM PERSON;
+
+
+-- delete all records except 2
+DELETE FROM PERSON WHERE SNO>2;
+
+-- clone the table
+CREATE TABLE PERSON_CLONE CLONE PERSON;
+
+
+SELECT * FROM PERSON_CLONE;
+
+-- delete from clone table
+DELETE FROM PERSON_CLONE WHERE SNO=2;
+
+
+-- delete from the main table
+DELETE FROM PERSON WHERE SNO=1;
+
+-- clone the schema
+CREATE SCHEMA CLONE_SCHEMA CLONE PUBLIC;
+
+-- use the clone schema
+USE SCHEMA CLONE_SCHEMA;
+
+-- select from the external table
+SELECT * FROM PERSON_EXT;
+
+----time travel---
+
+
+CREATE DATABASE TIMETRAVEL;
+
+use database timetravel;
+
+CREATE or replace TABLE person (
+  sno int, 
+  age int, 
+  employment string, 
+  zipcode bigint, 
+  education string, 
+  martialstatus string, 
+  profession string, 
+  Spouse string, 
+  race string, 
+  gender string, 
+  spouse_Age bigint, 
+  location string, 
+  salary string);
+  
+  
+-- create an external stage using an S3 bucket
+create or replace stage mystage url='s3://python121/';
+
+-- copy data into table using stage
+
+COPY INTO person FROM @mystage
+file_format = (type = csv field_delimiter = ',' skip_header = 1);
+
+SELECT * FROM person;
+
+-- get the current timestammp
+SELECT CURRENT_TIMESTAMP;
+
+-- set timezone to UTC
+ALTER SESSION SET TIMEZONE = 'UTC';
+
+-- update all age as zero
+update person set age =0;
+
+SELECT * FROM PERSON;
+
+-- time travel to a time based on the timestamp
+select * from PERSON before(timestamp => '2021-07-10 04:41:44.351 -0700'::timestamp);
+
+-- time travel to 2 minutes ago 
+select * from PERSON AT(offset => -60*2);
+
+-- note down the query id of this query as we will use it in the time travel query as well
+update PERSON set EDUCATION = NULL;
+--018c6f1f-00fd-b06c-0000-00000e99c991
+
+-- time travel to the time before the query id specified
+select * from PERSON before(statement => '');
+
+
+---timed travel with data cloning---
+select * from person;
+
+
+delete from person where sno>2;
+
+create table person_clone clone person;
+
+
+select * from person_clone;
+
+update person_clone set age=20;
+
+
+--- create table person_clonett clone person
+select * from person before (statement => '019d7eee-0000-159f-0000-0001608e95b9');
+
+update person_clone set age=23;
+
+-----*******-------
+

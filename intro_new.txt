@@ -1,0 +1,24 @@
+Check the Daily status. Wheather all the flow has been completed or not. Else we should resume the job or inform to the Respective Team.
+Once came to Morning shift, first will check the Daily_Check_list that we have. And will prepare the documents for the Important flow details.
+We have Four Environment. Among that we are working with teo Environment QUAL & PROD.
+Here we will check the data's like Maximum Report Date has been updated or not. Else we will do the Route around as per the concepts.
+Chekking the file status at S3 for both the Environment, like the files are arrived or not by the cut-off time is 3P.M IST. Else will update to the Respective team.
+Start the monitoring by Every morning like is there any Yesterday's files were or not. If files there means will complete and update to the team.
+Other Activities Like Manually Triggering the Jobs and Resume the Jobs at AIRFLOW.
+Pusiny the files to S3 if the files were not yet Received.
+End of the day, preparing the Sanity_check_Report for QUAL & PROD Environment and send to the Clients.
+Currently we assign for New Task by the client, Analysing the EMR for QUAL Environment.
+
+here end to end pipeline we going to setup.
+in that, which region or which zone should create the services like s3, emr (any particular region)
+client team is already processing the pipeline setup. Now they did 1st stage and third stage completed from their side, as same we also completed the 1 & 3 stage.
+so, we should work the pipeline setup with them  or we should create the pipelines by ours.
+In the Discussion doc KT plan, we need some more clarity on the topics, so better some one will help on these topics for better clarity.
+to which team we should connect for any quries or which team we should to work co-ordinate.
+once we complete the stages we need some supporting people to integrated the two services. for this we need one people to work with us like already done these service previsously.
+we need one people to report our regular activities
+
+what is our task, what is our process. what is the day to day activities
+
+once crawler added, after that if again files has been added at s3, we need to run crawler manually to add table at athena. so how to rectify this?
+
