@@ -1,0 +1,63 @@
+ sudo apt install software-properties-common
+   48  sudo add-apt-repository ppa:deadsnakes/ppa
+   49  sudo apt install python3.9
+   50  python -version
+   51  python --version
+   52  sudo apt -y upgrade
+   53  python3 -V
+   54  sudo apt update
+   55  sudo apt install python3-pip
+   56  pip3 --version
+   57  sudo apt install python3-venv
+   58  python3 -m venv env
+   59  source env/bin/activate
+   60  ll
+   61  deactivate
+   62  source env/bin/activate
+   63  cd env/
+   64  ll
+   65  cd ..
+   66  ll
+   67  cd env/
+   68  ll
+   69  cd bin/
+   70  ll
+   71  source activate
+   72  export AIRFLOW_HOME=~/airflow
+   73  echo $AIRFLOW_HOME
+   74  pip3 install apache-airflow
+   75  airflow initdb
+
+
+###Airflow Docs###
+*** install ubuntu server
+*** install python 3.8 above version
+sudo apt update
+sudo apt install software-properties-common
+sudo apt install python3.9
+sudo apt update
+sudo apt -y upgrade
+*** install Pip command
+sudo apt install python3-pip
+pip3 install flask
+
+*** sudo pip3 install apapche-airflow
+initiate the airflowdb by
+sudo airflow db init
+expose the port to airflow
+sudo airflow webserver -p 8080
+check with broswer ip:8080
+***now add the username and password in the airflow server
+sudo airflow users create -r Admin -u admin -f thenu -l amuthan -p test123 -e thenamuthanme@gmail.com
+“-r” is the role we want for the user
+“-u” is the username
+“-f” is the first name
+“-l” is the last name
+“-e” is the email id
+“-p” is the password
+
+*** use schedule coomand to schedule the jobs
+sudo airflow scheduler -D
+to craete a Database in airflow, first install sqlite3 in airflow directory at airflow server, then initiate by fallowing command
+sqlite3 airflow.db
+
