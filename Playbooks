@@ -1,0 +1,192 @@
+bash version
+---
+ - hosts: localhost
+   tasks:
+   - shell: "bash --version"
+     register: bash_ver
+   - set_fact:
+      bash_version: "{{bash_ver.stdout.split('\n')[0].split()[3]}}"
+      my_value: "bash_version"
+   - debug: var=bash_version
+---------------------
+gathering facts
+---
+ - hosts: all
+   gather_facts: false
+   tasks:
+   - name: finding the OS distribution
+     shell: "cat /etc/os-release | awk -F = 'NR==1 {print $2}' | awk '{print $1}' | tr '\"' ' '"
+     register: os_dist
+   - name: finding os Dist
+     shell: "uname"
+     register: os_name
+   - debug:
+      msg:
+      - "the os distribution : {{os_dist.stdout}}"
+      - "the  os name: {{os_name.stdout}}"
+---------------------------------
+root@server:~/playbooks# cat packg.yml
+---
+ - hosts: localhost
+   vars:
+   - pakgs: ['wget', 'git', 'nginx']
+     web_server: {'Linux':'httpd', 'ubuntu':'apache2'}
+     tasks:
+   - debug: var=web_server
+------------------------------------
+root@server:~/playbooks# cat packg2.yml
+---
+ - hosts: all
+   vars:
+   - pakgs: ['wget', 'git', 'nginx']
+     #web_servers: {'Linux':'httpd', 'ubuntu':'apache2'}
+     web_servers:
+      'Linux': 'httpd'
+      'Ubuntu': 'apache2'
+     gather_facts: false
+   tasks:
+   - debug: var=web_servers
+   - debug: var=pakgs[0]
+
+--------------------------------------
+root@server:~/playbooks# cat passing_variable.yml
+---
+- hosts: localhost
+  tasks:
+  - debug:
+     msg:
+     - "the x value of : {{x}}"
+       #     - "the y value of : {{y}}"
+
+
+----------------------------------
+root@server:~/playbooks# cat pb2.yml
+---
+ - name: installitin file
+   hosts: all
+   become: yes
+   tasks:
+   - name: This is removing file
+     apt: name=wget state=absent
+
+
+---------------------------------
+root@server:~/playbooks# cat pb5.yml
+---
+ - hosts: wb
+   become: yes
+   tasks:
+    - name: this is sample verbosity
+      debug:
+       msg: "this is "
+       verbosity: 3
+-----------------------------------
+root@server:~/playbooks# cat readable.yml
+---
+ - hosts: localhost
+   vars_files: reablevalue.yml
+   tasks:
+   - debug: var=pkgs
+
+----------------------------------
+root@server:~/playbooks# cat vars1.yml
+---
+ - hosts: localhost
+   vars:
+    x: 24
+    y: 34.7
+    my_name: "thenu"
+   tasks:
+   - debug:
+      msg:
+      - "The value of x is: {{x}} and type: {{x|type_debug}}"
+      - "The value of y is: {{y}} and type: {{y|type_debug}}"
+      - "The value of my_name is: {{my_name}} and type: {{my_name|type_debug}}"
+-------------------------------------
+root@server:~/playbooks# cat gather_ansible.yml
+---
+ - hosts: all
+   tasks:
+   - debug:
+      msg:
+      - "The os distribution is: {{ansible_distribution}}"
+      - "The os name is: {{ansible_system}}"
+      - "The os family : {{ansible_os_family}}"
+-------------------------------------
+root@server:~/playbooks# cat install_uninstall.yml
+---
+ - hosts: localhost
+   become: yes
+   tasks:
+   - name: working with pkgs
+     apt:
+      name: "{{pkgs}}"
+      state: "{{req_state}}"
+-------------------------
+root@server:~/playbooks# cat packg1.yml
+---
+ - hosts: localhost
+   vars:
+   x: =23
+   pakgs: ['wget', 'git', 'nginx']
+   web_servers: {'Linux':'httpd', 'ubuntu':'apache2'}
+   tasks:
+----------------------------------
+
+root@server:~/playbooks# cat pb1.yml
+---
+ - hosts: all
+   become: yes
+   tasks:
+   - apt: name=wget state=present
+---------------
+root@server:~/playbooks# cat pb4.yml
+---
+ - name: copying file
+   hosts: all
+   become: yes
+   tasks:
+   - name: This is copying file
+     copy: src=/root/hello/hello.txt dest=/temp
+--------------------
+root@server:~/playbooks# cat reablevalue.yml
+---
+ x: 45
+ y:
+  - 45
+  - 2
+  - "thenu"
+ pkgs:
+  "linux": "httpd"
+  "Ubuntu": "apache2"
+--------------------------
+root@server:~/playbooks# cat vars.yml
+---
+ - hosts: localhost
+   vars:
+    x: 24
+    y: 34.7
+    my_name: "thenu"
+   tasks:
+   - debug:
+      msg:
+      - "The value of x is: {{x}}"
+      - "The value of y is: {{y}}"
+      - "The value of my_name is: {{my_name}}"
+----------------------------------
+root@server:~/playbooks# cat varsprompat.yml
+---
+ - hosts: localhost
+   vars:
+    x: 45
+    myname: "thenu"
+   vars_prompt:
+     name: y
+     prompt: enter the name of y
+   tasks:
+   - debug:
+      msg:
+      - "the value of :{{x}}"
+      - "myname :{{myname}}}"
+      - "value of y :{{y}}"
+--------------------------
